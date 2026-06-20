@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="MazeO.vcxproj" Id="5a93c720-34c5-4d20-8354-3927557d9edd" />
+</Solution>
