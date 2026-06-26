@@ -2,12 +2,26 @@
 #include <vector>
 #include <stack>
 #include <cmath>
+#include <algorithm>
 #include "raymath.h"
 
 struct Cell {
     bool walls[4]; // direction of walls: N, E, S, W
     bool visited;
     Cell() { walls[0]=walls[1]=walls[2]=walls[3]=true; visited=false; }
+};
+
+bool Button(Rectangle rect, const char* text)
+{
+    Vector2 mouse = GetMousePosition();
+
+    bool hover = CheckCollisionPointRec(mouse, rect);
+
+    DrawRectangleRec(rect, hover ? GRAY : DARKGRAY);
+
+
+
+    return hover && IsMouseButtonPressed(MOUSE_BUTTON_LEFT);
 };
 
 int main()
@@ -20,15 +34,18 @@ int main()
     {
         Playing,
         Paused,
-        Settings
+        Settings,
     };
+    //Keyboard for pause menu
+    int opt = 0;
+    opt = std::clamp(opt, 0, 2);
 
     // Maze parameters
     const int ROWS = 15;
     const int COLS = 15;
-    const float CELL = 2.0f;
-    const float WALL_THICK = 0.2f;
-    const float WALL_H = 2.0f;
+    const float CELL = 3.0f;
+    const float WALL_THICK = 0.3f;
+    const float WALL_H = 3.0f;
 
     // Player
     const float PLAYER_HEIGHT = 1.2f;
@@ -256,9 +273,41 @@ int main()
         DrawText("WASD to move, mouse to look, SHIFT to run", 10, 10, 20, BLACK);
 
         if (state == GameState::Paused) {
+            if (IsKeyPressed(KEY_DOWN)) opt++;
+            if (IsKeyPressed(KEY_UP))   opt--;
+            opt = std::clamp(opt, 0, 2);  // clamp AFTER changing
+
+            if (IsKeyPressed(KEY_ENTER)) {
+                switch (opt) {
+                case 0:
+                    state = GameState::Playing;   // ← was empty
+                    DisableCursor();              // ← don't forget this!
+                    break;
+                case 1:
+                    state = GameState::Settings;  // ← needs to exist in enum
+                    break;
+                case 2:
+                    CloseWindow();
+                    break;
+                }
+            }
+
+            // Draw overlay
             DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(BLACK, 0.5f));
-            DrawText("PAUSED", GetScreenWidth() / 2 - MeasureText("PAUSED", 40) / 2, GetScreenHeight() / 2 - 20, 40, WHITE);
-            DrawText("Press Esc to resume", GetScreenWidth() / 2 - MeasureText("Press Esc to resume", 20) / 2, GetScreenHeight() / 2 + 20, 20, WHITE);
+
+            const char* options[] = { "Resume", "Settings", "Quit" };
+            int startY = GetScreenHeight() / 2 - 60;
+
+            DrawText("PAUSED",
+                GetScreenWidth() / 2 - MeasureText("PAUSED", 40) / 2,
+                startY - 60, 40, WHITE);
+
+            for (int i = 0; i < 3; i++) {
+                Color col = (i == opt) ? YELLOW : WHITE;
+                DrawText(options[i],
+                    GetScreenWidth() / 2 - MeasureText(options[i], 24) / 2,
+                    startY + i * 40, 24, col);
+            }
         }
         EndDrawing();
     }
