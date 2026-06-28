@@ -5,39 +5,98 @@
 //  BUTTON
 // ─────────────────────────────────────
 
+static const int BTN_W = 320;
+static const int BTN_H = 44;
+static const int BTN_GAP = 12;
+
+static int CenterX() { return GetScreenWidth() / 2 - BTN_W / 2; }
+
+static int DrawTitle(const char* text, int fontSize, int y)
+{
+    int sw = GetScreenWidth();
+    int tw = MeasureText(text, fontSize);
+    DrawText(text, sw / 2 - tw / 2 + 3, y + 3, fontSize, Color{ 40,40,40,200 });
+    DrawText(text, sw / 2 - tw / 2, y, fontSize, WHITE);
+    return y + fontSize;
+}
+
 bool DrawButton(Rectangle rect, const char* label, bool selected)
 {
-    Color bgCol     = selected ? Color{162,162,162,255} : Color{130,130,130,255};
-    Color highlight = {200,200,200,255};
-    Color shadow    = { 80, 80, 80,255};
-    Color textCol   = selected ? WHITE : Color{220,220,220,255};
-
+    Color bgCol     = {162,162,162,255};
+    Color textCol = WHITE;
     int b = 3;
-    // Border
-    DrawRectangle((int)rect.x,                        (int)rect.y,                         (int)rect.width,  b,            highlight); // top
-    DrawRectangle((int)rect.x,                        (int)rect.y,                         b, (int)rect.height,            highlight); // left
-    DrawRectangle((int)rect.x,                        (int)rect.y + (int)rect.height - b,  (int)rect.width,  b,            shadow);    // bottom
-    DrawRectangle((int)rect.x + (int)rect.width - b,  (int)rect.y,                         b, (int)rect.height,            shadow);    // right
-    // Fill
-    DrawRectangle((int)rect.x + b, (int)rect.y + b, (int)rect.width - b*2, (int)rect.height - b*2, bgCol);
 
-    // Label
-    int fs = 22;
-    int tw = MeasureText(label, fs);
-    int tx = (int)rect.x + ((int)rect.width  - tw) / 2;
-    int ty = (int)rect.y + ((int)rect.height - fs) / 2;
-    DrawText(label, tx+2, ty+2, fs, Color{40,40,40,200}); // shadow
-    DrawText(label, tx,   ty,   fs, textCol);
-
-    // Hover tint
     Vector2 mouse = GetMousePosition();
     bool hovered = CheckCollisionPointRec(mouse, rect);
-    if (hovered)
-        DrawRectangle((int)rect.x+b, (int)rect.y+b, (int)rect.width-b*2, (int)rect.height-b*2, Color{255,255,255,30});
+    Color borderCol = hovered||selected ? WHITE : BLACK;
+    DrawRectangleLinesEx(rect, 2, borderCol);
+    // Border
+    DrawRectangle(rect.x+2,rect.y+2, rect.width-4, b, { 200,200,200,255 }); // top
+    DrawRectangle(rect.x+2,rect.y+2,  b,rect.height-4, { 200,200,200,255 }); // left
+    DrawRectangle(rect.x+2,rect.y+rect.height - 2*b-4,rect.width-4,  2*b, { 80, 80, 80,255 }); // bottom
+    DrawRectangle(rect.x+ rect.width - b-4,rect.y+2, b,rect.height-4, { 80, 80, 80,255 });  // right
+    // Fill
+    DrawRectangle(rect.x +2+ b,rect.y +2+ b,rect.width - 2*b-4,rect.height - b*3-4, bgCol);
+
+    // Label
+    int fs = 22.0f;
+    int tw = MeasureText(label, fs);
+    int tx =  rect.x + ( rect.width  - tw) / 2;
+    int ty =  rect.y + ( rect.height - fs) / 2;
+    DrawText(label, tx+2, ty+2, fs, Color{40,40,40,200}); // shadow
+    DrawText(label, tx,   ty,   fs, textCol);
 
     return hovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 }
 
+
+// ─────────────────────────────────────
+//  MAIN MENU
+// ─────────────────────────────────────
+
+int DrawMainMenu()
+{
+    static int opt = 0;
+    int result = 0;
+
+    int sw = GetScreenWidth();
+    int sh = GetScreenHeight();
+    int cx = CenterX();
+
+    // Dark background
+    DrawRectangle(0, 0, sw, sh, Color{ 20,20,20,255 });
+
+    // Title — big, two lines like MC
+    int titleY = sh / 2 - 210;
+    DrawTitle("MazeO", 72, titleY);
+
+    // Subtitle
+    const char* sub = "Can you find the way out?";
+    int subW = MeasureText(sub, 18);
+    DrawText(sub, sw / 2 - subW / 2 + 2, titleY + 72 + 12 + 2, 18, Color{ 40,40,40,200 });
+    DrawText(sub, sw / 2 - subW / 2, titleY + 72 + 12, 18, Color{ 180,180,180,255 });
+
+    // Buttons
+    int btnStartY = sh / 2 - BTN_H / 2 + 20;
+    Rectangle rPlay = { (float)cx, (float)btnStartY,                       (float)BTN_W, (float)BTN_H };
+    Rectangle rQuit = { (float)cx, (float)(btnStartY + BTN_H + BTN_GAP),   (float)BTN_W, (float)BTN_H };
+
+    // Keyboard nav
+    if (IsKeyPressed(KEY_DOWN)) opt++;
+    if (IsKeyPressed(KEY_UP))   opt--;
+    opt = std::clamp(opt, 0, 1);
+
+    // Mouse hover syncs keyboard
+    Vector2 mouse = GetMousePosition();
+    if (CheckCollisionPointRec(mouse, rPlay)) opt = 0;
+    if (CheckCollisionPointRec(mouse, rQuit)) opt = 1;
+
+    bool enter = IsKeyPressed(KEY_ENTER);
+    if (DrawButton(rPlay, "Play Game", opt == 0) || (opt == 0 && enter)) result = 1;
+    if (DrawButton(rQuit, "Quit Game", opt == 1) || (opt == 1 && enter)) result = 2;
+
+    return result;
+}
 // ─────────────────────────────────────
 //  PAUSE MENU
 // ─────────────────────────────────────
@@ -53,38 +112,97 @@ int DrawPauseMenu(int& opt)
 
     int sw = GetScreenWidth();
     int sh = GetScreenHeight();
-    int btnW = 320, btnH = 44;
-    int cx = sw/2 - btnW/2;
+    int cx = CenterX();
 
     // Dim background
     DrawRectangle(0, 0, sw, sh, Color{0,0,0,140});
 
     // Title
     const char* title = "Game Menu";
-    int tSize = 48;
-    int tW    = MeasureText(title, tSize);
+    int fontsize = 48;
+    int tW    = MeasureText(title, fontsize);
     int tY    = sh/2 - 190;
-    DrawText(title, sw/2 - tW/2 + 3, tY+3, tSize, Color{40,40,40,200});
-    DrawText(title, sw/2 - tW/2,     tY,   tSize, WHITE);
+    DrawText(title, sw/2 - tW/2 + 3, tY+3, fontsize, Color{40,40,40,200});
+    DrawText(title, sw/2 - tW/2,     tY,   fontsize, WHITE);
 
+    int titleY = sh / 2 - 190;
+    DrawTitle("Game Menu", 48, titleY);
+    int btnStartY = titleY + 48 + 24;
     // ── Back to Game ──
-    Rectangle rResume   = { (float)cx, (float)(tY + tSize + 24),  (float)btnW, (float)btnH };
+    Rectangle rResume   = { (float)cx, (float)(tY+fontsize+24), (float)BTN_W, (float)BTN_H };
     // ── Settings ──
-    Rectangle rSettings = { (float)cx, (float)(sh/2 - btnH/2),    (float)btnW, (float)btnH };
+    Rectangle rSettings = { (float)cx, (float)(sh/2-BTN_H/2),(float)BTN_W, (float)BTN_H };
     // ── Quit ──
-    Rectangle rQuit     = { (float)cx, (float)(sh - 80),           (float)btnW, (float)btnH };
+    Rectangle rQuit     = { (float)cx, (float)(sh-80),  (float)BTN_W, (float)BTN_H };
 
     // Mouse hover syncs keyboard selection
     Vector2 mouse = GetMousePosition();
-    if (CheckCollisionPointRec(mouse, rResume))   opt = 0;
-    if (CheckCollisionPointRec(mouse, rSettings)) opt = 1;
-    if (CheckCollisionPointRec(mouse, rQuit))     opt = 2;
+	Vector2 delta = GetMouseDelta();
+    if (delta.x != 0 || delta.y != 0) {
+        if (CheckCollisionPointRec(mouse, rResume))   opt = 0;
+        if (CheckCollisionPointRec(mouse, rSettings)) opt = 1;
+        if (CheckCollisionPointRec(mouse, rQuit))     opt = 2;
+    }
 
     bool enter = IsKeyPressed(KEY_ENTER);
 
     if (DrawButton(rResume,   "Back to Game", opt == 0) || (opt == 0 && enter)) result = 1;
     if (DrawButton(rSettings, "Settings",     opt == 1) || (opt == 1 && enter)) result = 2;
     if (DrawButton(rQuit,     "Quit Game",    opt == 2) || (opt == 2 && enter)) result = 3;
+
+    return result;
+}
+
+// ─────────────────────────────────────
+//  LEVEL COMPLETE
+// ─────────────────────────────────────
+
+int DrawLevelComplete()
+{
+    static int opt = 0;
+    int result = 0;
+
+    int sw = GetScreenWidth();
+    int sh = GetScreenHeight();
+    int cx = CenterX();
+
+    // Dark overlay
+    DrawRectangle(0, 0, sw, sh, Color{ 0,0,0,180 });
+
+    // Title
+    int titleY = sh / 2 - 160;
+    DrawTitle("You Escaped!", 56, titleY);
+
+    // Subtitle
+    const char* sub = "Try again if you like";
+    int subW = MeasureText(sub, 18);
+    DrawText(sub, sw / 2 - subW / 2 + 2, titleY + 56 + 12 + 2, 18, Color{ 40,40,40,200 });
+    DrawText(sub, sw / 2 - subW / 2, titleY + 56 + 12, 18, Color{ 180,180,180,255 });
+
+    // Buttons
+    int btnStartY = sh / 2 + 10;
+    Rectangle rAgain = { (float)cx, (float)btnStartY,                     (float)BTN_W, (float)BTN_H };
+    Rectangle rMenu = { (float)cx, (float)(btnStartY + BTN_H + BTN_GAP), (float)BTN_W, (float)BTN_H };
+    Rectangle rQuit = { (float)cx, (float)(sh - 80),                     (float)BTN_W, (float)BTN_H };
+
+    // Keyboard nav
+    if (IsKeyPressed(KEY_DOWN)) opt++;
+    if (IsKeyPressed(KEY_UP))   opt--;
+    opt = std::clamp(opt, 0, 2);
+
+    // Mouse hover syncs keyboard
+    Vector2 mouse = GetMousePosition();
+    Vector2 delta = GetMouseDelta();
+    if (delta.x != 0 || delta.y != 0) {
+        if (CheckCollisionPointRec(mouse, rAgain)) opt = 0;
+        if (CheckCollisionPointRec(mouse, rMenu))  opt = 1;
+        if (CheckCollisionPointRec(mouse, rQuit))  opt = 2;
+    }
+
+    bool enter = IsKeyPressed(KEY_ENTER);
+    if (DrawButton(rAgain, "Play Again", opt == 0) || (opt == 0 && enter)) result = 1;
+    if (DrawButton(rMenu, "Main Menu", opt == 1) || (opt == 1 && enter)) result = 2;
+    if (DrawButton(rQuit, "Quit Game", opt == 2) || (opt == 2 && enter)) result = 3;
 
     return result;
 }

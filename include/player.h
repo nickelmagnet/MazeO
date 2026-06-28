@@ -18,7 +18,7 @@ struct Player {
     static constexpr float SPRINT = 7.0f;
 };
 
-// Spawns player at the center of cell (spawnRow, spawnCol), facing +Z
+
 Player CreatePlayer(int spawnRow, int spawnCol, const Maze& maze);
 
 // Handles mouse look + WASD movement + wall collision. Call every frame while playing.

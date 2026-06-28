@@ -23,10 +23,16 @@ struct Maze {
     float cellSize;
     float wallThick;
     float wallH;
-    float width;   // cols * cellSize
-    float depth;   // rows * cellSize
+    float width;   
+    float depth;   
     std::vector<Cell> grid;
     std::vector<Wall> walls;
+
+    Vector3 CellCenter(int r, int c) const {
+        float ox = -width * 0.5f;
+        float oz = -depth * 0.5f;
+        return { ox + (c + 0.5f) * cellSize, 0.0f, oz + (r + 0.5f) * cellSize };
+    }
 };
 
 // Generates maze grid (recursive backtracker) and builds wall list.

@@ -34,7 +34,7 @@ Maze GenerateMaze(int rows, int cols, float cellSize, float wallThick, float wal
         if (CanVisit(cr, cc-1)) nbs.emplace_back(cr, cc-1); // W
 
         if (!nbs.empty()) {
-            auto pick = nbs[GetRandomValue(0, (int)nbs.size()-1)];
+            auto pick = nbs[GetRandomValue(0,  nbs.size()-1)];
             st.emplace(cr, cc);
             int nr = pick.first, nc = pick.second;
 
