@@ -86,11 +86,6 @@ int DrawMainMenu()
     if (IsKeyPressed(KEY_UP))   opt--;
     opt = std::clamp(opt, 0, 1);
 
-    // Mouse hover syncs keyboard
-    Vector2 mouse = GetMousePosition();
-    if (CheckCollisionPointRec(mouse, rPlay)) opt = 0;
-    if (CheckCollisionPointRec(mouse, rQuit)) opt = 1;
-
     bool enter = IsKeyPressed(KEY_ENTER);
     if (DrawButton(rPlay, "Play Game", opt == 0) || (opt == 0 && enter)) result = 1;
     if (DrawButton(rQuit, "Quit Game", opt == 1) || (opt == 1 && enter)) result = 2;
@@ -132,14 +127,6 @@ int DrawPauseMenu(int& opt)
     // ── Quit ──
     Rectangle rQuit     = { (float)cx, (float)(sh-80),  (float)BTN_W, (float)BTN_H };
 
-    // Mouse hover syncs keyboard selection
-    Vector2 mouse = GetMousePosition();
-	Vector2 delta = GetMouseDelta();
-    if (delta.x != 0 || delta.y != 0) {
-        if (CheckCollisionPointRec(mouse, rResume))   opt = 0;
-        if (CheckCollisionPointRec(mouse, rSettings)) opt = 1;
-        if (CheckCollisionPointRec(mouse, rQuit))     opt = 2;
-    }
 
     bool enter = IsKeyPressed(KEY_ENTER);
 
@@ -171,35 +158,29 @@ int DrawLevelComplete()
     DrawTitle("You Escaped!", 56, titleY);
 
     // Subtitle
-    const char* sub = "Try again if you like";
+    const char* sub = "Pure AURA!";
     int subW = MeasureText(sub, 18);
     DrawText(sub, sw / 2 - subW / 2 + 2, titleY + 56 + 12 + 2, 18, Color{ 40,40,40,200 });
     DrawText(sub, sw / 2 - subW / 2, titleY + 56 + 12, 18, Color{ 180,180,180,255 });
 
     // Buttons
     int btnStartY = sh / 2 + 10;
-    Rectangle rAgain = { (float)cx, (float)btnStartY,                     (float)BTN_W, (float)BTN_H };
-    Rectangle rMenu = { (float)cx, (float)(btnStartY + BTN_H + BTN_GAP), (float)BTN_W, (float)BTN_H };
-    Rectangle rQuit = { (float)cx, (float)(sh - 80),                     (float)BTN_W, (float)BTN_H };
+    Rectangle rAgain = {(float)cx, (float)btnStartY,                        (float)BTN_W, (float)BTN_H };
+    Rectangle rLevel = {(float)cx, (float)btnStartY + BTN_H + BTN_GAP,      (float)BTN_W, (float)BTN_H };
+    Rectangle rMenu  = {(float)cx, (float)(btnStartY +2*( BTN_H + BTN_GAP)),(float)BTN_W, (float)BTN_H };
+    Rectangle rQuit  = {(float)cx, (float)(sh - 80),                        (float)BTN_W, (float)BTN_H };
 
     // Keyboard nav
     if (IsKeyPressed(KEY_DOWN)) opt++;
     if (IsKeyPressed(KEY_UP))   opt--;
-    opt = std::clamp(opt, 0, 2);
+    opt = std::clamp(opt, 0, 3);
 
-    // Mouse hover syncs keyboard
-    Vector2 mouse = GetMousePosition();
-    Vector2 delta = GetMouseDelta();
-    if (delta.x != 0 || delta.y != 0) {
-        if (CheckCollisionPointRec(mouse, rAgain)) opt = 0;
-        if (CheckCollisionPointRec(mouse, rMenu))  opt = 1;
-        if (CheckCollisionPointRec(mouse, rQuit))  opt = 2;
-    }
 
     bool enter = IsKeyPressed(KEY_ENTER);
     if (DrawButton(rAgain, "Play Again", opt == 0) || (opt == 0 && enter)) result = 1;
-    if (DrawButton(rMenu, "Main Menu", opt == 1) || (opt == 1 && enter)) result = 2;
-    if (DrawButton(rQuit, "Quit Game", opt == 2) || (opt == 2 && enter)) result = 3;
+    if (DrawButton(rLevel, "Change Difficulty", opt == 1) || (opt == 1 && enter)) result = 2;
+    if (DrawButton(rMenu, "Main Menu", opt == 2) || (opt == 2 && enter)) result = 3;
+    if (DrawButton(rQuit, "Quit Game", opt == 3) || (opt == 3 && enter)) result = 4;
 
     return result;
 }
@@ -223,7 +204,7 @@ int DrawDifficultyMenu()
     int titleY = sh / 2 - 230;
     DrawTitle("Select Difficulty", 48, titleY);
 
-    const char* labels[] = { "Easy", "Medium", "Hard", "Expert", "Insane" };
+    const char* labels[] = { "Bot", "Noob", "Pro", "Hacker", "God" };
     const char* sizes[] = { "9x9", "15x15", "21x21", "27x27", "33x33" };
 
     int totalBtns = 5;
@@ -232,31 +213,104 @@ int DrawDifficultyMenu()
     // Keyboard nav
     if (IsKeyPressed(KEY_DOWN)) opt++;
     if (IsKeyPressed(KEY_UP))   opt--;
-    opt = std::clamp(opt, 0, totalBtns - 1);
+    opt = std::clamp(opt, 0, totalBtns);
 
     bool enter = IsKeyPressed(KEY_ENTER);
 
     for (int i = 0; i < totalBtns; i++) {
         Rectangle r = {
-            (float)cx,
-            (float)(btnStartY + i * (BTN_H + BTN_GAP)),
-            (float)BTN_W,
-            (float)BTN_H
-        };
+            (float)cx,(float)(btnStartY + i * (BTN_H + BTN_GAP)),(float)BTN_W,(float)BTN_H};
 
-        // mouse hover
-        if (CheckCollisionPointRec(GetMousePosition(), r)) opt = i;
-
-        // label like "Easy  (9x9)"
-        const char* label = TextFormat("%-8s  (%s)", labels[i], sizes[i]);
+        // label like "Noob (9x9)"
+        const char* label = TextFormat("%-10s  (%s)", labels[i], sizes[i]);
 
         if (DrawButton(r, label, opt == i) || (opt == i && enter)) result = i + 1;
     }
 
     // Back button
     Rectangle rBack = { (float)cx, (float)(sh - 80), (float)BTN_W, (float)BTN_H };
-    if (CheckCollisionPointRec(GetMousePosition(), rBack)) opt = totalBtns;
     if (DrawButton(rBack, "Back", opt == totalBtns) || (opt == totalBtns && enter)) result = -1;
 
     return result; // 1-5 = difficulty chosen, -1 = back
+}
+
+static float DrawSlider(Rectangle rail, float value, float minVal, float maxVal, const char* label)
+{
+    int sw = GetScreenWidth();
+
+    // Label left, value right
+    const char* valStr = TextFormat("%s: %.0f", label, value);
+    DrawText(valStr, (int)rail.x, (int)rail.y - 22, 20, WHITE);
+
+    // Rail background
+    DrawRectangleRec(rail, Color{ 60,60,60,255 });
+    DrawRectangleLinesEx(rail, 2, Color{ 80,80,80,255 });
+
+    // Fill
+    float t = (value - minVal) / (maxVal - minVal);
+    DrawRectangle((int)rail.x, (int)rail.y, (int)(rail.width * t), (int)rail.height, Color{ 162,162,162,255 });
+
+    // Knob
+    int knobX = (int)(rail.x + rail.width * t);
+    int knobY = (int)(rail.y + rail.height / 2);
+    DrawCircle(knobX, knobY, 8, WHITE);
+    DrawCircleLines(knobX, knobY, 8, BLACK);
+
+    // Drag
+    Vector2 mouse = GetMousePosition();
+    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mouse, rail)) {
+        t = (mouse.x - rail.x) / rail.width;
+        t = t < 0 ? 0 : (t > 1 ? 1 : t);
+        value = minVal + t * (maxVal - minVal);
+    }
+
+    return value;
+}
+
+// ─────────────────────────────────────
+//  SETTINGS MENU
+//  returns -1 = back/done
+// ─────────────────────────────────────
+
+int DrawSettingsMenu(GameSettings& s)
+{
+    int result = 0;
+
+    int sw = GetScreenWidth();
+    int sh = GetScreenHeight();
+    int cx = CenterX();
+
+    DrawRectangle(0, 0, sw, sh, Color{ 20,20,20,255 });
+
+    // Title
+    int titleY = sh / 2 - 260;
+    DrawTitle("Options", 48, titleY);
+
+    int sliderW = BTN_W;
+    int sliderH = 16;
+    int col1X = sw / 2 - BTN_W - 8;   // left column
+    int col2X = sw / 2 + 8;            // right column
+    int row1Y = titleY + 48 + 40;
+
+    // ── Row 1: FOV slider | Sensitivity slider ──
+    Rectangle rFOV = { (float)col1X, (float)(row1Y + 22), (float)sliderW, (float)sliderH };
+    Rectangle rSens = { (float)col2X, (float)(row1Y + 22), (float)sliderW, (float)sliderH };
+
+    s.fov = DrawSlider(rFOV, s.fov, 40.0f, 120.0f, "FOV");
+    s.sensitivity = DrawSlider(rSens, s.sensitivity * 1000.0f, 1.0f, 10.0f, "Sensitivity") / 1000.0f;
+
+    // ── Row 2: FPS toggle button ──
+    int row2Y = row1Y + sliderH + 60;
+    Rectangle rFPS = { (float)col1X, (float)row2Y, (float)sliderW, (float)BTN_H };
+
+    const char* fpsLabel = TextFormat("FPS Cap: %s", FPS_LABELS[s.fpsCapIndex]);
+    if (DrawButton(rFPS, fpsLabel, false)) {
+        s.fpsCapIndex = (s.fpsCapIndex + 1) % FPS_COUNT; // cycle through options
+    }
+
+    // ── Done button ──
+    Rectangle rDone = { (float)cx, (float)(sh - 80), (float)BTN_W, (float)BTN_H };
+    if (DrawButton(rDone, "Done", false) || IsKeyPressed(KEY_ESCAPE)) result = -1;
+
+    return result;
 }

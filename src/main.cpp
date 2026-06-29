@@ -18,8 +18,10 @@ enum class GameState {
 int main()
 {
     InitWindow(1280, 760, "MazeO");
-    SetTargetFPS(144);
+    SetTargetFPS(0);
     SetExitKey(KEY_NULL);
+
+	GameSettings settings;
 
     const int difficulty[][2] = { {9,9},{15,15},{21,21},{27,27},{33,33} };
     int currentLevel = 0;
@@ -56,15 +58,17 @@ int main()
     GameState state = GameState::MainMenu;
     EnableCursor();
     int pauseOpt = 0;
-
+    GameState prevState = GameState::MainMenu; 
 	
 
     //  GAME LOOP
     while (!WindowShouldClose())
     {   
         BeginDrawing();
-        ClearBackground(Color{ 102, 191, 255,255 });
+        ClearBackground(Color{255,255,255,0});
         float dt = GetFrameTime();
+
+        SetTargetFPS(FPS_VALUES[settings.fpsCapIndex]);
 
         // ── Escape toggles pause ──
         if (IsKeyPressed(KEY_ESCAPE)) {
@@ -75,14 +79,15 @@ int main()
                 state = GameState::Playing;
                 DisableCursor();
             }
-            else if (state == GameState::MainMenu) {
-                break;
-            }
+            else if (state == GameState::Settings) {
+                state = prevState; if (prevState == GameState::Paused) DisableCursor(); }
+            else if (state == GameState::DifficultyMenu) { state = prevState; }
+            else if (state == GameState::MainMenu) { break; }
         }
 
         // ── Update ──
         if (state == GameState::Playing) {
-            UpdatePlayer(player, maze.walls, dt);
+            UpdatePlayer(player, maze.walls,dt,settings.sensitivity);
 
             float dx = player.camera.position.x - exitPos.x;
             float dz = player.camera.position.z - exitPos.z;
@@ -98,24 +103,29 @@ int main()
         if (state == GameState::MainMenu) {
             int action = DrawMainMenu();
             if (action == 1) {          // Choose Difficulty
+                prevState = state;
                 state = GameState::DifficultyMenu;
             }
             else if (action == 2) {   // Quit
                 break;
             }
         }else if (state == GameState::DifficultyMenu) {
-            int pick = DrawDifficultyMenu();
-            if (pick > 0) {
-                currentLevel = pick - 1;
+            int action = DrawDifficultyMenu();
+            if (action > 0) {
+                currentLevel = action-1;
                 StartNewGame(currentLevel);
                 state = GameState::Playing;
                 DisableCursor();
+            }else if (action == -1) {
+                state = prevState;
             }
         }
         else if (state == GameState::Playing || state == GameState::Paused) {
             // ── 3D world ──
             BeginMode3D(player.camera);
+            player.camera.fovy = settings.fov;
             DrawPlane({ 0,0,0 }, { maze.width, maze.depth }, LIGHTGRAY);
+            DrawCube({ 0, 20.0f, 0 }, maze.width + 1100, 0.1f, maze.depth + 1100, SKYBLUE);
             for (auto& w : maze.walls)
                 DrawCube(w.center, w.size.x, w.size.y, w.size.z, DARKGRAY);
             DrawSphere(exitPos, 0.4f, YELLOW);
@@ -128,17 +138,9 @@ int main()
             // ── Pause menu ──
             if (state == GameState::Paused) {
                 int action = DrawPauseMenu(pauseOpt);
-                if (action == 1) {          // Resume
-                    state = GameState::Playing;
-                    DisableCursor();
-                }
-                else if (action == 2) {   // Settings
-                    state = GameState::Settings;
-                }
-                else if (action == 3) {   // Quit to menu
-                    state = GameState::MainMenu;
-                    EnableCursor();
-                }
+                if (action == 1) { state = GameState::Playing; DisableCursor(); }
+                else if (action == 2) { prevState = GameState::Paused; state = GameState::Settings; }
+                else if (action == 3) { state = GameState::MainMenu; EnableCursor(); }
             }
         }
         else if (state == GameState::LevelComplete) {
@@ -147,10 +149,19 @@ int main()
                 StartNewGame(currentLevel);
                 state = GameState::Playing;
                 DisableCursor();
-            }else if (action == 2) { state = GameState::DifficultyMenu; EnableCursor(); }
+            }
+            else if (action == 2) { prevState=state ;state = GameState::DifficultyMenu; }
             else if (action == 3) {  state = GameState::MainMenu;  }
             else if (action == 4) {   // Quit
                 break;
+            }
+        }
+        else if (state == GameState::Settings) {
+            int action = DrawSettingsMenu(settings);
+            if (action == -1) {
+                state = prevState;
+                SetTargetFPS(FPS_VALUES[settings.fpsCapIndex]);
+                if (prevState == GameState::Paused) EnableCursor();
             }
         }
 

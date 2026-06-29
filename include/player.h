@@ -3,10 +3,6 @@
 #include "maze.h"
 #include <vector>
 
-// ─────────────────────────────────────
-//  PLAYER
-// ─────────────────────────────────────
-
 struct Player {
     Camera3D camera;
     float yaw;
@@ -21,5 +17,5 @@ struct Player {
 
 Player CreatePlayer(int spawnRow, int spawnCol, const Maze& maze);
 
-// Handles mouse look + WASD movement + wall collision. Call every frame while playing.
-void UpdatePlayer(Player& player, const std::vector<Wall>& walls, float dt);
+// Handles mouse look + WASD movement + wall collision
+void UpdatePlayer(Player& player, const std::vector<Wall>& walls, float dt,float sensitivity);

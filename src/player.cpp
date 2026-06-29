@@ -24,11 +24,10 @@ Player CreatePlayer(int spawnRow, int spawnCol, const Maze& maze)
     return p;
 }
 
-void UpdatePlayer(Player& player, const std::vector<Wall>& walls, float dt)
+void UpdatePlayer(Player& player, const std::vector<Wall>& walls, float dt,float sensitivity)
 {
     // ── Mouse look ──
     Vector2 md = GetMouseDelta();
-    const float sensitivity = 0.003f;
     player.yaw   += -md.x * sensitivity;
     player.pitch += -md.y * sensitivity;
     player.pitch = std::clamp(player.pitch, -1.47f, 1.47f);
