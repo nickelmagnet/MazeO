@@ -122,12 +122,9 @@ int DrawPauseMenu(int& opt)
     int fontsize = 48;
     int tW    = MeasureText(title, fontsize);
     int tY    = sh/2 - 190;
-    DrawText(title, sw/2 - tW/2 + 3, tY+3, fontsize, Color{40,40,40,200});
-    DrawText(title, sw/2 - tW/2,     tY,   fontsize, WHITE);
 
-    int titleY = sh / 2 - 190;
-    DrawTitle("Game Menu", 48, titleY);
-    int btnStartY = titleY + 48 + 24;
+    DrawTitle("Game Menu", 48, tY);
+    int btnStartY = tY + 48 + 24;
     // ── Back to Game ──
     Rectangle rResume   = { (float)cx, (float)(tY+fontsize+24), (float)BTN_W, (float)BTN_H };
     // ── Settings ──
@@ -148,7 +145,7 @@ int DrawPauseMenu(int& opt)
 
     if (DrawButton(rResume,   "Back to Game", opt == 0) || (opt == 0 && enter)) result = 1;
     if (DrawButton(rSettings, "Settings",     opt == 1) || (opt == 1 && enter)) result = 2;
-    if (DrawButton(rQuit,     "Quit Game",    opt == 2) || (opt == 2 && enter)) result = 3;
+    if (DrawButton(rQuit,     "Quit to menu",    opt == 2) || (opt == 2 && enter)) result = 3;
 
     return result;
 }
@@ -205,4 +202,61 @@ int DrawLevelComplete()
     if (DrawButton(rQuit, "Quit Game", opt == 2) || (opt == 2 && enter)) result = 3;
 
     return result;
+}
+
+
+// ─────────────────────────────────────
+// DIFFICULTY MENU
+// ─────────────────────────────────────
+
+int DrawDifficultyMenu()
+{
+    static int opt = 0;
+    int result = 0;
+
+    int sw = GetScreenWidth();
+    int sh = GetScreenHeight();
+    int cx = CenterX();
+
+    DrawRectangle(0, 0, sw, sh, Color{ 20,20,20,255 });
+
+    int titleY = sh / 2 - 230;
+    DrawTitle("Select Difficulty", 48, titleY);
+
+    const char* labels[] = { "Easy", "Medium", "Hard", "Expert", "Insane" };
+    const char* sizes[] = { "9x9", "15x15", "21x21", "27x27", "33x33" };
+
+    int totalBtns = 5;
+    int btnStartY = titleY + 48 + 30;
+
+    // Keyboard nav
+    if (IsKeyPressed(KEY_DOWN)) opt++;
+    if (IsKeyPressed(KEY_UP))   opt--;
+    opt = std::clamp(opt, 0, totalBtns - 1);
+
+    bool enter = IsKeyPressed(KEY_ENTER);
+
+    for (int i = 0; i < totalBtns; i++) {
+        Rectangle r = {
+            (float)cx,
+            (float)(btnStartY + i * (BTN_H + BTN_GAP)),
+            (float)BTN_W,
+            (float)BTN_H
+        };
+
+        // mouse hover
+        if (CheckCollisionPointRec(GetMousePosition(), r)) opt = i;
+
+        // label like "Easy  (9x9)"
+        const char* label = TextFormat("%-8s  (%s)", labels[i], sizes[i]);
+
+        if (DrawButton(r, label, opt == i) || (opt == i && enter)) result = i + 1;
+    }
+
+    // Back button
+    Rectangle rBack = { (float)cx, (float)(sh - 80), (float)BTN_W, (float)BTN_H };
+    if (CheckCollisionPointRec(GetMousePosition(), rBack)) opt = totalBtns;
+    if (DrawButton(rBack, "Back", opt == totalBtns) || (opt == totalBtns && enter)) result = -1;
+
+    return result; // 1-5 = difficulty chosen, -1 = back
 }

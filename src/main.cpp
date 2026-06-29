@@ -12,6 +12,7 @@ enum class GameState {
     Paused,
     LevelComplete,
     Settings,
+    DifficultyMenu,
 };
 
 int main()
@@ -20,14 +21,18 @@ int main()
     SetTargetFPS(144);
     SetExitKey(KEY_NULL);
 
+    const int difficulty[][2] = { {9,9},{15,15},{21,21},{27,27},{33,33} };
+    int currentLevel = 0;
 
     // ── Maze + player (initialized on Play) ──
     Maze   maze = {};
     Player player = {};
     Vector3 exitPos = {};
 
-    auto StartNewGame = [&]() {
-        maze = GenerateMaze(15, 15, 3.0f, 0.3f, 3.0f);
+    auto StartNewGame = [&](int level) {
+        int rows = difficulty[level][0];
+        int cols = difficulty[level][1];
+        maze = GenerateMaze(rows, cols, 3.0f, 0.3f, 3.0f);
 
         // random spawn — any cell
         int spawnR = GetRandomValue(0, maze.rows - 1);
@@ -51,6 +56,8 @@ int main()
     GameState state = GameState::MainMenu;
     EnableCursor();
     int pauseOpt = 0;
+
+	
 
     //  GAME LOOP
     while (!WindowShouldClose())
@@ -90,13 +97,19 @@ int main()
         // ─────────────────────────────
         if (state == GameState::MainMenu) {
             int action = DrawMainMenu();
-            if (action == 1) {          // Play
-                StartNewGame();
-                state = GameState::Playing;
-                DisableCursor();
+            if (action == 1) {          // Choose Difficulty
+                state = GameState::DifficultyMenu;
             }
             else if (action == 2) {   // Quit
                 break;
+            }
+        }else if (state == GameState::DifficultyMenu) {
+            int pick = DrawDifficultyMenu();
+            if (pick > 0) {
+                currentLevel = pick - 1;
+                StartNewGame(currentLevel);
+                state = GameState::Playing;
+                DisableCursor();
             }
         }
         else if (state == GameState::Playing || state == GameState::Paused) {
@@ -131,14 +144,12 @@ int main()
         else if (state == GameState::LevelComplete) {
             int action = DrawLevelComplete();
             if (action == 1) {          // Play again
-                StartNewGame();
+                StartNewGame(currentLevel);
                 state = GameState::Playing;
                 DisableCursor();
-            }
-            else if (action == 2) {   // Main menu
-                state = GameState::MainMenu;
-            }
-            else if (action == 3) {   // Quit
+            }else if (action == 2) { state = GameState::DifficultyMenu; EnableCursor(); }
+            else if (action == 3) {  state = GameState::MainMenu;  }
+            else if (action == 4) {   // Quit
                 break;
             }
         }

@@ -11,3 +11,5 @@ int DrawPauseMenu(int& opt);
 
 // returns 1=play again, 2=main menu, 3=quit
 int DrawLevelComplete();
+
+int DrawDifficultyMenu(); // returns 1-5 for difficulty, 0 for nothing
