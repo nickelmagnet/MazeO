@@ -15,6 +15,9 @@
 
 # Mono auto generated files
 mono_crash.*
+MazeO.sln
+MazeO.vcxproj
+MazeO.vcxproj.filters
 
 # Build results
 [Dd]ebug/
