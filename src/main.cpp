@@ -68,7 +68,8 @@ int main()
         ClearBackground(Color{255,255,255,0});
         float dt = GetFrameTime();
 
-        SetTargetFPS(FPS_VALUES[settings.fpsCapIndex]);
+        int frm = (settings.MaxFps = 241.0f) ? 0 : (int)settings.MaxFps;
+        SetTargetFPS(frm);
 
         // ── Escape toggles pause ──
         if (IsKeyPressed(KEY_ESCAPE)) {
@@ -80,7 +81,7 @@ int main()
                 DisableCursor();
             }
             else if (state == GameState::Settings) {
-                state = prevState; if (prevState == GameState::Paused) DisableCursor(); }
+                state = prevState; }
             else if (state == GameState::DifficultyMenu) { state = prevState; }
             else if (state == GameState::MainMenu) { break; }
         }
@@ -151,7 +152,7 @@ int main()
                 DisableCursor();
             }
             else if (action == 2) { prevState=state ;state = GameState::DifficultyMenu; }
-            else if (action == 3) {  state = GameState::MainMenu;  }
+            else if (action == 3) {  state = GameState::MainMenu;}
             else if (action == 4) {   // Quit
                 break;
             }
@@ -160,7 +161,8 @@ int main()
             int action = DrawSettingsMenu(settings);
             if (action == -1) {
                 state = prevState;
-                SetTargetFPS(FPS_VALUES[settings.fpsCapIndex]);
+				int frm = (settings.MaxFps >= 241.0f) ? 0 : (int)settings.MaxFps;
+				SetTargetFPS(frm);
                 if (prevState == GameState::Paused) EnableCursor();
             }
         }

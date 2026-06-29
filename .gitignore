@@ -15,9 +15,10 @@
 
 # Mono auto generated files
 mono_crash.*
-MazeO.slnx
-MazeO.vcxproj
-MazeO.vcxproj.filters
+out/
+CmakeCache.txt
+Build/
+CmakeFiles/
 
 # Build results
 [Dd]ebug/
