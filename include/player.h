@@ -8,10 +8,10 @@ struct Player {
     float yaw;
     float pitch;
 
-    static constexpr float HEIGHT = 1.2f;
+    static constexpr float HEIGHT = 1.6f;
     static constexpr float RADIUS = 0.25f;
-    static constexpr float SPEED  = 4.0f;
-    static constexpr float SPRINT = 7.0f;
+    static constexpr float SPEED  = 5.0f;
+    static constexpr float SPRINT = 10.0f;
 };
 
 

@@ -17,6 +17,7 @@
 mono_crash.*
 out/
 CmakeCache.txt
+CMakeSettings.json
 Build/
 CmakeFiles/
 

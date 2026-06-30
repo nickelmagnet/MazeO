@@ -51,16 +51,25 @@ bool DrawButton(Rectangle rect, const char* label, bool selected, Color bgOverri
     return hovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
 }
 
-static float DrawSlider(Rectangle rail, float value, float minVal, float maxVal, const char* label, bool isSelected, bool isPercent)
+static float DrawSlider(Rectangle rail, float value, float minVal, float maxVal, const char* label, bool isSelected, int displayMode)
 {
-    // Format label text depending on if it's a percentage or standard value
-    const char* valStr = isPercent ? TextFormat("%s: %.0f%%", label, value) : TextFormat("%s: %.0f", label, value);
+    // displayMode: 0 = normal scalar, 1 = percentage, 2 = FPS custom display
+    const char* valStr = "";
+    if (displayMode == 1) {
+        valStr = TextFormat("%s: %.0f%%", label, value);
+    }
+    else if (displayMode == 2) {
+        valStr = (value >= maxVal - 0.5f) ? TextFormat("%s: Unlimited", label) : TextFormat("%s: %.0f", label, value);
+    }
+    else {
+        valStr = TextFormat("%s: %.0f", label, value);
+    }
+
     int tw = MeasureText(valStr, 20);
     DrawText(valStr, (int)(rail.x + rail.width / 2 - tw / 2), (int)rail.y - 26, 20, WHITE);
 
     DrawButton(rail, "", false, Color{ 60,60,60,255 }, true);
 
-    // Click/Drag anywhere on rail -> jump to position
     Vector2 mouse = GetMousePosition();
     if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mouse, rail)) {
         float t = (mouse.x - rail.x) / rail.width;
@@ -68,14 +77,12 @@ static float DrawSlider(Rectangle rail, float value, float minVal, float maxVal,
         value = minVal + t * (maxVal - minVal);
     }
 
-    // Inner knob position calculation
     float t = (value - minVal) / (maxVal - minVal);
     int knobW = 30;
     Rectangle knob = { rail.x + t * (rail.width - knobW), rail.y, (float)knobW, rail.height };
 
-    // Hover or Keyboard selection applies the white border to the knob only
     bool knobHovered = CheckCollisionPointRec(mouse, knob);
-    DrawButton(knob, "", knobHovered || isSelected);
+    DrawButton(knob, "", knobHovered || isSelected, Color{ 130,130,130,255 }, false);
 
     return value;
 }
@@ -94,7 +101,7 @@ int DrawMainMenu()
     int cx = CenterX();
 
     // Dark background
-    DrawRectangle(0, 0, sw, sh, Color{ 20,20,20,255 });
+    DrawRectangle(0, 0, sw, sh, Color{ 0,0,0,140 });
 
     // Title — big, two lines like MC
     int titleY = sh / 2 - 210;
@@ -108,17 +115,19 @@ int DrawMainMenu()
 
     // Buttons
     int btnStartY = sh / 2 - BTN_H / 2 + 20;
-    Rectangle rPlay = { (float)cx, (float)btnStartY,                       (float)BTN_W, (float)BTN_H };
-    Rectangle rQuit = { (float)cx, (float)(btnStartY + BTN_H + BTN_GAP),   (float)BTN_W, (float)BTN_H };
+    Rectangle rPlay = { (float)cx, (float)btnStartY,                        (float)BTN_W, (float)BTN_H };
+    Rectangle rSettings = { (float)cx, (float)(btnStartY+ BTN_H + BTN_GAP),  (float)BTN_W, (float)BTN_H };
+    Rectangle rQuit = { (float)cx, (float)(btnStartY + 2*(BTN_H + BTN_GAP)),(float)BTN_W, (float)BTN_H };
 
     // Keyboard nav
     if (IsKeyPressed(KEY_DOWN)) opt++;
     if (IsKeyPressed(KEY_UP))   opt--;
-    opt = std::clamp(opt, 0, 1);
+    opt = std::clamp(opt, 0, 2);
 
     bool enter = IsKeyPressed(KEY_ENTER);
     if (DrawButton(rPlay, "Play Game", opt == 0) || (opt == 0 && enter)) result = 1;
-    if (DrawButton(rQuit, "Quit Game", opt == 1) || (opt == 1 && enter)) result = 2;
+    if (DrawButton(rSettings, "Settings", opt == 1) || (opt == 1 && enter)) result = 2;
+    if (DrawButton(rQuit, "Quit Game", opt == 2) || (opt == 2 && enter)) result = 3;
 
     return result;
 }
@@ -181,14 +190,14 @@ int DrawLevelComplete()
     int cx = CenterX();
 
     // Dark overlay
-    DrawRectangle(0, 0, sw, sh, Color{ 0,0,0,180 });
+    DrawRectangle(0, 0, sw, sh, Color{ 0,0,0,140 });
 
     // Title
     int titleY = sh / 2 - 160;
     DrawTitle("You Escaped!", 56, titleY);
 
     // Subtitle
-    const char* sub = "Pure AURA!";
+    const char* sub = "Nice Job!";
     int subW = MeasureText(sub, 18);
     DrawText(sub, sw / 2 - subW / 2 + 2, titleY + 56 + 12 + 2, 18, Color{ 40,40,40,200 });
     DrawText(sub, sw / 2 - subW / 2, titleY + 56 + 12, 18, Color{ 180,180,180,255 });
@@ -229,7 +238,7 @@ int DrawDifficultyMenu()
     int sh = GetScreenHeight();
     int cx = CenterX();
 
-    DrawRectangle(0, 0, sw, sh, Color{ 20,20,20,255 });
+    DrawRectangle(0, 0, sw, sh, Color{0,0,0,140 });
 
     int titleY = sh / 2 - 230;
     DrawTitle("Select Difficulty", 48, titleY);
@@ -279,17 +288,18 @@ int DrawSettingsMenu(GameSettings& s)
     int sh = GetScreenHeight();
     int cx = CenterX();
 
-    DrawRectangle(0, 0, sw, sh, Color{ 20,20,20,255 });
+    DrawRectangle(0, 0, sw, sh, Color{ 0,0,0,140});
 
     int titleY = sh / 2 - 260;
     DrawTitle("Options", 48, titleY);
 
     float sliderW = BTN_W;
     float sliderH = BTN_H;
-    float col1X = sw / 2 - BTN_W - 12;   
-    float col2X = sw / 2 + 12;          
+    float col1X = sw / 2 - BTN_W - 12;
+    float col2X = sw / 2 + 12;
     float row1Y = titleY + 48 + 48;
     float row2Y = row1Y + sliderH + 56;
+    float row3Y = row2Y + sliderH + 56;
 
     static int opt = 0; 
 
@@ -309,6 +319,15 @@ int DrawSettingsMenu(GameSettings& s)
         if (IsKeyPressed(KEY_LEFT))  s.MaxFps -= 1.0f;
         s.MaxFps = std::clamp(s.MaxFps, 30.0f, 241.0f);
     }
+    else if (opt == 3) {
+        if (IsKeyPressed(KEY_RIGHT)) s.themeId = (s.themeId + 1) % THEME_COUNT;
+        if (IsKeyPressed(KEY_LEFT))  s.themeId = (s.themeId - 1 + THEME_COUNT) % THEME_COUNT;
+    }
+    else if (opt == 4) {
+        if (IsKeyPressed(KEY_RIGHT)) s.musicVolume += 0.05f;
+        if (IsKeyPressed(KEY_LEFT))  s.musicVolume -= 0.05f;
+        s.musicVolume = std::clamp(s.musicVolume, 0.0f, 1.0f);
+    }
 
     // ── Draw Row 1
     Rectangle rFOV = { col1X, row1Y, sliderW, sliderH };
@@ -316,41 +335,32 @@ int DrawSettingsMenu(GameSettings& s)
 
     Rectangle rSens = { col2X, row1Y, sliderW, sliderH }; // Fixed Row alignment layout bug here
     float visualSens = 1.0f + ((s.sensitivity - 0.001f) / (0.010f - 0.001f)) * 199.0f;
-    visualSens = DrawSlider(rSens, visualSens, 1.0f, 200.0f, "Sensitivity", opt == 1, true);
+    visualSens = DrawSlider(rSens, visualSens, 1.0f, 200.0f, "Sensitivity", opt == 1, 1);
     s.sensitivity = 0.001f + ((visualSens - 1.0f) / 199.0f) * (0.010f - 0.001f);
 
     
-    Rectangle rFPS = { sw/2-BTN_W/2, row2Y, sliderW, sliderH };
-
-    float t = (s.MaxFps - 30.0f) / (241.0f - 30.0f);
-    int knobW = 30;
-    Rectangle knob = { rFPS.x + t * (rFPS.width - knobW), rFPS.y, (float)knobW, rFPS.height };
-
-    const char* fpsText = (s.MaxFps = 241.0f) ? "Max FPS: Unlimited" : TextFormat("Max FPS: %.0f", s.MaxFps);
-    int tw = MeasureText(fpsText, 20);
-    DrawText(fpsText, (int)(rFPS.x + rFPS.width / 2 - tw / 2), (int)rFPS.y - 26, 20, WHITE);
-
-    DrawButton(rFPS, "", false, Color{ 60,60,60,255 }, true); // Background Track rail
-
-    Vector2 mouse = GetMousePosition();
-    bool knobHovered = CheckCollisionPointRec(mouse, knob);
-    DrawButton(knob, "", knobHovered || (opt == 2), Color{ 130,130,130,255 }, false); // Inner white boundary knob
-
-    if (IsMouseButtonDown(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mouse, rFPS)) {
-        float mouseT = (mouse.x - rFPS.x) / rFPS.width;
-        mouseT = std::clamp(mouseT, 0.0f, 1.0f);
-        s.MaxFps = 30.0f + mouseT * (241.0f - 30.0f);
+    Rectangle rFPS = { col1X, row2Y, sliderW, sliderH };
+    s.MaxFps = DrawSlider(rFPS, s.MaxFps, 30.0f, 241.0f, "Max FPS", opt == 2, 2);
+    Rectangle rTheme = { col2X, row2Y, sliderW, sliderH };
+    const char* themeLabel = TextFormat("Theme: %s", THEMES[s.themeId].name);
+    if (DrawButton(rTheme, themeLabel, opt == 3)) {
+        s.themeId = (s.themeId + 1) % THEME_COUNT;
     }
+
+    Rectangle rVolume = { col1X, row3Y, sliderW, sliderH };
+    float visualVol = s.musicVolume * 100.0f;
+    visualVol = DrawSlider(rVolume, visualVol, 0.0f, 100.0f, "Music Volume", opt == 4, 1);
+    s.musicVolume = visualVol / 100.0f;
 
     // ── Up / Down UI focus Selection navigation loop ──
     if (IsKeyPressed(KEY_DOWN)) opt++;
     if (IsKeyPressed(KEY_UP))   opt--;
-    opt = std::clamp(opt, 0, 3);
+    opt = std::clamp(opt, 0, 5);
 
     bool enter = IsKeyPressed(KEY_ENTER);
     Rectangle rDone = { (float)cx, (float)(sh - 80), (float)BTN_W, (float)BTN_H };
 
-    if (DrawButton(rDone, "Done", opt == 3) || (opt == 3 && enter) || IsKeyPressed(KEY_ESCAPE)) {
+    if (DrawButton(rDone, "Done", opt == 5) || (opt == 5 && enter) || IsKeyPressed(KEY_ESCAPE)) {
         result = -1;
     }
 
