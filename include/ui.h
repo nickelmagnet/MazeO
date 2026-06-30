@@ -23,10 +23,10 @@ struct Theme {
 //extern const Theme THEMES[THEME_Ct/OUNT];
 const Theme THEMES[THEME_COUNT] = {
    { "Default", "assets/themes/default/wall.png", "assets/themes/default/floor.png", "assets/themes/default/orb.png", "assets/themes/default/music.ogg", SKYBLUE,        0.02f  },
-   { "Winter",  "assets/themes/winter/wall.png",  "assets/themes/winter/floor.png",  "assets/themes/winter/orb.png",  "assets/themes/winter/music.ogg",  WHITE,          0.05f },
+   { "Winter",  "assets/themes/winter/wall.png",  "assets/themes/winter/floor.png",  "assets/themes/winter/orb.png",  "assets/themes/winter/music.ogg",  {200,200,200,255},          0.05f},
    { "Nether",  "assets/themes/nether/wall.png",  "assets/themes/nether/floor.png",  "assets/themes/nether/orb.png",  "assets/themes/nether/music.ogg",  BLACK,          0.06f },
-   { "Space",   "assets/themes/space/wall.png",   "assets/themes/space/floor.png",   "assets/themes/space/orb.png",   "assets/themes/space/music.ogg",   DARKBLUE,       0.0f  },
-   { "Summer",  "assets/themes/summer/wall.png",  "assets/themes/summer/floor.png",  "assets/themes/summer/orb.png",  "assets/themes/summer/music.ogg",  {26,0,255,255}, 0.0f  }
+   { "End",   "assets/themes/end/wall.png",       "assets/themes/end/floor.png",     "assets/themes/end/orb.png",     "assets/themes/end/music.ogg",   {75,0,120,255},       0.0f},
+   { "Summer",  "assets/themes/summer/wall.png",  "assets/themes/summer/floor.png",  "assets/themes/summer/orb.png",  "assets/themes/summer/music.ogg",  {63,0,255,255}, 0.0f  }
 };
 struct GameSettings {
     float sensitivity = 0.003f;
@@ -39,7 +39,6 @@ struct GameSettings {
 static const char* MAIN_MENU_MUSIC = "assets/main/menu_music.ogg";
 static const char* VICTORY_MUSIC = "assets/main/victory_music.ogg";
 static const char* MAIN_MENU_TEXTURE = "assets/main/menu_bg.png";
-static const char* VICTORY_BG_TEXTURE = "assets/main/victory_bg.png";
 
 bool DrawButton(Rectangle rect, const char* label, bool selected, Color bgOverride = { 162,162,162,255 }, bool noHover = false); //generates button & returns true if clicked
 

@@ -56,7 +56,6 @@ int main()
     mainMenuMusic.looping = true;
     victoryMusic.looping = false;
     Texture2D MainBg = LoadTexture(MAIN_MENU_TEXTURE);
-    Texture2D victoryBg = LoadTexture(VICTORY_BG_TEXTURE);
 
     const int difficulty[][2] = { {9,9},{15,15},{21,21},{27,27},{33,33} };
     int currentLevel = 0;
@@ -164,13 +163,6 @@ int main()
             { 0,0,(float)GetScreenWidth(),(float)GetScreenHeight() },
             { 0,0 }, 0.0f, WHITE);
         };
-
-    auto DrawVictoryBg = [&]() {
-        DrawTexturePro(victoryBg,
-            { 0,0,(float)victoryBg.width,(float)victoryBg.height },
-            { 0,0,(float)GetScreenWidth(),(float)GetScreenHeight() },
-            { 0,0 }, 0.0f, WHITE);
-        };
         // ── State ──
     GameState state = GameState::MainMenu;
     EnableCursor();
@@ -238,7 +230,7 @@ int main()
 				break;
             }
         }else if (state == GameState::DifficultyMenu) {
-            if (prevState == GameState::LevelComplete) {DrawVictoryBg();}
+            if (prevState == GameState::LevelComplete) { DrawGameWorld3D();}
             else {DrawMainMenuBg();}
 
             int action = DrawDifficultyMenu();
@@ -263,24 +255,7 @@ int main()
                     EnableCursor();
                     PlayTrack(5); // transition: leaving game -> main menu music
             }
-        }
-        else if (state == GameState::LevelComplete) {
-			DrawVictoryBg();
-
-            int action = DrawLevelComplete();
-            if (action == 1) {          // Play again
-                StartNewGame(currentLevel);
-                state = GameState::Playing;
-                DisableCursor();
-                PlayTrack(settings.themeId);
-            }
-            else if (action == 2) { prevState=state ;state = GameState::DifficultyMenu; }
-            else if (action == 3) { state = GameState::MainMenu;PlayTrack(5); }
-            else if (action == 4) {   // Quit
-                break;
-            }
-        }
-        else if (state == GameState::Settings) {
+        } else if (state == GameState::Settings) {
             if (gameStarted && prevState == GameState::Paused) {DrawGameWorld3D();}
             else {DrawMainMenuBg();}
 
@@ -302,7 +277,7 @@ int main()
                 if (prevState == GameState::Paused) EnableCursor();
             }
         }else if (state == GameState::LevelComplete) {
-            DrawVictoryBg();
+            DrawGameWorld3D();
 
             int action = DrawLevelComplete();
             if (action == 1) {          // Play again
@@ -313,8 +288,7 @@ int main()
             }
             else if (action == 2) { prevState = state; state = GameState::DifficultyMenu; }
             else if (action == 3) {
-                state = GameState::MainMenu;
-                PlayTrack(5); // transition: victory -> main menu
+                state = GameState::MainMenu;PlayTrack(5);
             }
             else if (action == 4) {   // Quit
                 break;
@@ -337,7 +311,6 @@ int main()
     UnloadMusicStream(mainMenuMusic);
     UnloadMusicStream(victoryMusic);
     UnloadTexture(MainBg);
-    UnloadTexture(victoryBg);
 
     CloseAudioDevice();
     CloseWindow();
