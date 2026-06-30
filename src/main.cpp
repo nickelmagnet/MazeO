@@ -2,7 +2,6 @@
 #include "maze.h"
 #include "player.h"
 #include "ui.h"
-
 // ─────────────────────────────────────
 //  GAME STATES
 // ─────────────────────────────────────
@@ -16,7 +15,8 @@ enum class GameState {
 };
 
 int main()
-{
+{   
+
     InitWindow(1280, 760, "MazeO");
     InitAudioDevice();
     SetTargetFPS(0);

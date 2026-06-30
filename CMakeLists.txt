@@ -27,4 +27,9 @@ target_link_libraries(MazeO PRIVATE
     user32
     shell32
 )
-
+if(MSVC)
+    target_link_options(MazeO PRIVATE
+        /SUBSYSTEM:WINDOWS
+        /ENTRY:mainCRTStartup
+    )
+endif()
