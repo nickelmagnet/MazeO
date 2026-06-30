@@ -28,14 +28,19 @@ Procedurally generated mazes, five difficulty levels, themeable visuals and musi
 
 ```
 src/
-├── main.cpp          # game loop, state machine, rendering
-├── maze.h / .cpp      # maze generation (recursive backtracker) + wall geometry
-├── player.h / .cpp    # first-person camera, movement, collision 
-└── ui.h / .cpp         # all menus, buttons, sliders
+├── main.cpp      # game loop, state machine, rendering
+├── maze.cpp      # maze generation (recursive backtracker) + wall geometry
+├── player.cpp    # first-person camera, movement, collision 
+└── ui.cpp        # all menus, buttons, sliders
+
+include/         
+├── maze.h 
+├── player.h
+└── ui.h
 
 assets/
 ├── themes/
-│   ├── default/  winter/  nether/  space/  summer/
+│   ├── default/  winter/  nether/  end/  summer/
 │   │   ├── wall.png
 │   │   ├── floor.png
 |   |   ├── orb.png
@@ -43,17 +48,22 @@ assets/
 └── main/
     ├── menu_music.ogg
     ├── victory_music.ogg
-    ├── pause_bg.png
-    └── victory_bg.png
+    └── pause_bg.png
+    
 ```
 
 ## Building
 
 Requires [raylib](https://github.com/raysan5/raylib) installed and linked.
 
-```bash
-g++ src/main.cpp src/maze.cpp src/player.cpp src/ui.cpp -lraylib -o MazeO
-```
+This project uses CMake.
+
+To build it:
+
+- Configure Raylib on your system.
+- Add the `include/` folder to your include directories.
+- Compile all `.cpp` files inside `src/`.
+- Link against Raylib
 
 (Adjust linker flags for your platform — see raylib's build instructions for Windows/Linux/macOS specifics.)
 
