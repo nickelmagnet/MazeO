@@ -9,9 +9,9 @@ Procedurally generated mazes, five difficulty levels, themeable visuals and musi
 - **Procedural maze generation** using a recursive backtracker algorithm
 - **First-person 3D movement** with mouse look and sliding wall collision
 - **5 difficulty levels** (9x9 up to 33x33), randomized spawn and exit points each run
-- **5 visual themes** (Default, Winter, Nether, Space, Summer) with their own wall/floor textures, sky color, fog density, and background music
+- **5 visual themes** (Default, Winter, Nether, End, Summer) with their own wall/floor textures(32×32 pixel art), sky color, fog density, and background music
 - **Full menu system**: main menu, difficulty select, pause menu, settings, and level complete screen — all keyboard and mouse navigable, Minecraft inspired button visuals
-- **Settings**: FOV, mouse sensitivity, max FPS (including unlimited), theme selection, music volume — all adjustable with sliders
+- **Settings**: FOV, mouse sensitivity, max Framerate (including unlimited), music volume — all adjustable with sliders and  theme selection
 - **Looping background music per theme**, plus dedicated main menu and victory tracks
 
 ## Controls
