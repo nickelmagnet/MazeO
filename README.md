@@ -9,9 +9,9 @@ Procedurally generated mazes, five difficulty levels, themeable visuals and musi
 - **Procedural maze generation** using a recursive backtracker algorithm
 - **First-person 3D movement** with mouse look and sliding wall collision
 - **5 difficulty levels** (9x9 up to 33x33), randomized spawn and exit points each run
-- **5 visual themes** (Default, Winter, Nether, Space, Summer) with their own wall/floor textures, sky color, fog density, and background music
+- **5 visual themes** (Default, Winter, Nether, End, Summer) with their own wall/floor textures(32×32 pixel art), sky color, fog density, and background music
 - **Full menu system**: main menu, difficulty select, pause menu, settings, and level complete screen — all keyboard and mouse navigable, Minecraft inspired button visuals
-- **Settings**: FOV, mouse sensitivity, max FPS (including unlimited), theme selection, music volume — all adjustable with sliders
+- **Settings**: FOV, mouse sensitivity, max Framerate (including unlimited), music volume — all adjustable with sliders and  theme selection
 - **Looping background music per theme**, plus dedicated main menu and victory tracks
 
 ## Controls
@@ -28,14 +28,19 @@ Procedurally generated mazes, five difficulty levels, themeable visuals and musi
 
 ```
 src/
-├── main.cpp          # game loop, state machine, rendering
-├── maze.h / .cpp      # maze generation (recursive backtracker) + wall geometry
-├── player.h / .cpp    # first-person camera, movement, collision 
-└── ui.h / .cpp         # all menus, buttons, sliders
+├── main.cpp      # game loop, state machine, rendering
+├── maze.cpp      # maze generation (recursive backtracker) + wall geometry
+├── player.cpp    # first-person camera, movement, collision 
+└── ui.cpp        # all menus, buttons, sliders
+
+include/         
+├── maze.h 
+├── player.h
+└── ui.h
 
 assets/
 ├── themes/
-│   ├── default/  winter/  nether/  space/  summer/
+│   ├── default/  winter/  nether/  end/  summer/
 │   │   ├── wall.png
 │   │   ├── floor.png
 |   |   ├── orb.png
@@ -43,17 +48,22 @@ assets/
 └── main/
     ├── menu_music.ogg
     ├── victory_music.ogg
-    ├── pause_bg.png
-    └── victory_bg.png
+    └── pause_bg.png
+    
 ```
 
 ## Building
 
 Requires [raylib](https://github.com/raysan5/raylib) installed and linked.
 
-```bash
-g++ src/main.cpp src/maze.cpp src/player.cpp src/ui.cpp -lraylib -o MazeO
-```
+This project uses CMake.
+
+To build it:
+
+- Configure Raylib on your system.
+- Add the `include/` folder to your include directories.
+- Compile all `.cpp` files inside `src/`.
+- Link against Raylib
 
 (Adjust linker flags for your platform — see raylib's build instructions for Windows/Linux/macOS specifics.)
 
