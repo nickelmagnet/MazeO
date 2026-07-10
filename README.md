@@ -49,7 +49,7 @@ assets/
     ├── menu_music.ogg
     ├── victory_music.ogg
     └── pause_bg.png
-    
+     
 ```
 
 ## Building
@@ -77,4 +77,4 @@ The player is a first-person camera using raylib's `Camera3D`, with mouse-look y
 
 ## Status
 
-In development. Built as a personal project to learn C++ and raylib.
+No longer in active development. Built as a personal project to learn C++ and raylib.
