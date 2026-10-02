@@ -4,7 +4,8 @@ A first-person 3D maze game built from scratch in C++ using [raylib](https://www
 
 Procedurally generated mazes, five difficulty levels, themeable visuals and music, and a menu system — all built with raw raylib draw calls and no game engine.
 
-##Screenshots
+## Screenshots
+
 ![Main Menu](screenshots/MainMenu.png)
 ![Default theme](screenshots/DefaultTheme.png)
 ![Nether](screenshots/NetherTheme.png)
