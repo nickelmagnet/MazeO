@@ -6,12 +6,20 @@ Procedurally generated mazes, five difficulty levels, themeable visuals and musi
 
 ## Screenshots
 
-![Main Menu](screenshots/MainMenu.png)
-![Default theme](screenshots/DefaultTheme.png)
-![Nether](screenshots/NetherTheme.png)
-![Win Condition](screenshots/WinterWin.png)
-![Settings](screenshots/Settings.png)
-![Beach](screenshots/BeachTheme.png)
+<p align="center">
+  <img src="screenshots/DefaultTheme" width="85%">
+</p>
+
+<p align="center">
+  <img src="screenshots/MainMenu.png" width="48%">
+  <img src="screenshots/WinterWin" width="48%">
+</p>
+
+<p align="center">
+  <img src="screenshots/NetherTheme.png" width="32%">
+  <img src="screenshots/Settings.png" width="32%">
+  <img src="screenshots/BeachTheme.png" width="32%">
+</p>
 
 ## Features
 
