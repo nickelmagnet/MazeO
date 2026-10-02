@@ -35,6 +35,6 @@ struct Maze {
     }
 };
 
-// Generates maze grid (recursive backtracker) and builds wall list.
+// Generates maze grid and builds wall list.
 // mazeOffset is applied so maze is centered around origin.
 Maze GenerateMaze(int rows, int cols, float cellSize, float wallThick, float wallH);

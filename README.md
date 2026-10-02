@@ -4,6 +4,14 @@ A first-person 3D maze game built from scratch in C++ using [raylib](https://www
 
 Procedurally generated mazes, five difficulty levels, themeable visuals and music, and a menu system — all built with raw raylib draw calls and no game engine.
 
+##Screenshots
+![Main Menu](screenshots/MainMenu.png)
+![Default theme](screenshots/DefaultTheme.png)
+![Nether](screenshots/NetherTheme.png)
+![Win Condition](screenshots/WinterWin.png)
+![Settings](screenshots/Settings.png)
+![Beach](screenshots/BeachTheme.png)
+
 ## Features
 
 - **Procedural maze generation** using a recursive backtracker algorithm
@@ -77,4 +85,4 @@ The player is a first-person camera using raylib's `Camera3D`, with mouse-look y
 
 ## Status
 
-In development. Built as a personal project to learn C++ and raylib.
+Not in active development. Built as a personal project to learn C++ and raylib.
