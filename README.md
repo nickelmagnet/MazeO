@@ -7,12 +7,12 @@ Procedurally generated mazes, five difficulty levels, themeable visuals and musi
 ## Screenshots
 
 <p align="center">
-  <img src="screenshots/DefaultTheme" width="85%">
+  <img src="screenshots/DefaultTheme.png" width="85%">
 </p>
 
 <p align="center">
   <img src="screenshots/MainMenu.png" width="48%">
-  <img src="screenshots/WinterWin" width="48%">
+  <img src="screenshots/WinterWin.png" width="48%">
 </p>
 
 <p align="center">
